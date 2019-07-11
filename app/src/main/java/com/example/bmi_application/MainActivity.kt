@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
 import androidx.core.content.edit
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_bmi_insert.*
@@ -11,9 +12,12 @@ import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.*
 import org.json.JSONArray
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
+
+
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,12 +28,19 @@ class MainActivity : AppCompatActivity() {
         //TODO 入力データがnullの場合のエラー処理
 
         bmiList.setOnClickListener {
-            var bmiList = lordBmiList()
-            val fragment = bmiListFragment()
-            val fragmentManager = this.getSupportFragmentManager()
-            val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.container, fragment)
-                .commit()
+            val pref = PreferenceManager.getDefaultSharedPreferences(this)
+            val jsonArray = JSONArray(pref.getString("DATE_LIST", "[]"))
+
+            for (i in 0 until jsonArray.length()) {
+                Log.i("loadArrayList", "[$i] -> " + jsonArray.get(i))
+            }
+//            var bmiList = lordBmiList()
+//            println(bmiList)
+//            val fragment = bmiListFragment()
+//            val fragmentManager = this.getSupportFragmentManager()
+//            val fragmentTransaction = fragmentManager.beginTransaction()
+//            fragmentTransaction.replace(R.id.container, fragment)
+//                .commit()
         }
 
         insert.setOnClickListener {
@@ -53,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 //                if(inputHeight.text != null || inputWeight.text != null) {
 //                    bmiResult.text = "身長および体重を入力してください"
 //                } else {
-                    height = inputHeight.text.toString().toDouble() / 100
+                    height = inputHeight.text.toString().toDouble()
                     weight = inputWeight.text.toString().toDouble()
                     //計算結果を表示する
                     bmi = String.format("%1$.1f", bmiCalculate(height, weight))
@@ -82,31 +93,45 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun onSaveTapped(date: String?, user: bmiUser) {
+    fun onSaveTapped(date: String, user: bmiUser) {
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        var datelist = mutableListOf<String?>(pref.getString(date," "))
+        datelist.add(date)
+        pref.edit {
+            val bmiGson = Gson()
+            bmiGson.toJson(user)
+            putString(date, bmiGson .toJson(user))
+                .apply()
+        }
+        saveBmiDateList(datelist)
+    }
 
+    fun bmiCalculate(a: Double, b: Double) = b / (a * a) * 10000
+
+    fun saveBmiDateList(arrayList:List<String?>){
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         pref.edit {
-            val gson = Gson()
-            gson.toJson(user)
-            putString(date, gson.toJson(user))
+            val dateGson = Gson()
+            dateGson.toJson(arrayList)
+            putString("DATE_LIST", dateGson.toJson(dateGson))
                 .apply()
         }
 
     }
 
-    fun bmiCalculate(a: Double, b: Double) = b / (a * a)
 
-    fun lordBmiList(): ArrayList<String> {
-        val list = ArrayList<String>()
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val strJson = prefs.getString("20", "")
-        if (strJson != "") {
-            val jsonAry = JSONArray(strJson)
-            for (i in 0 until jsonAry.length()) {
-                list.add(jsonAry.getString(i))
-            }
-
-        }
-        return list
-    }
+//    fun lordBmiList(): ArrayList<String> {
+//        val list = ArrayList<String>()
+//        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+//        val strJson:
+//        val jsonAry = JSONArray(strJson)
+//
+//        if (strJson != " ") {
+//            for (i in 0 until jsonAry.length()) {
+//                list = pref.getString(date," ")
+//            }
+//
+//        }
+//        return list
+//    }
 }

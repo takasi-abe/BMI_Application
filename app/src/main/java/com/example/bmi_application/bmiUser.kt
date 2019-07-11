@@ -7,7 +7,7 @@ class bmiUser{
     var height: Double = 0.0
     var weight: Double = 0.0
     var comment: String? = null
-    var date: String? = null
+    lateinit var date: String
 
     constructor(bmi: String?, height: Double, weight: Double, comment: String?, date: String) {
         this.bmi = bmi
