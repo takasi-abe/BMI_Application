@@ -1,6 +1,7 @@
 package com.example.bmi_application
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -9,6 +10,7 @@ import androidx.core.content.edit
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_bmi_insert.*
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.text.SimpleDateFormat
 import java.util.*
 import org.json.JSONArray
@@ -95,15 +97,25 @@ class MainActivity : AppCompatActivity() {
 
     fun onSaveTapped(date: String, user: bmiUser) {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        var datelist = mutableListOf<String?>(pref.getString(date," "))
-        datelist.add(date)
+//        val jsonArray = JSONArray(pref.getString("DATE_LIST", " "))
+//        var datelist = mutableListOf<String?>()
+        val datelist: List<String> = loadDateList(pref)
+
+//        for (i in 0 until jsonArray.length()) {
+//            datelist.add(jsonArray.get(i) as String)
+//        }
+
+//        if (pref.getString(date, null) != null) {
+//            datelist.add(date)
+            println(datelist)
+            saveBmiDateList(datelist)
+//        }
         pref.edit {
             val bmiGson = Gson()
             bmiGson.toJson(user)
-            putString(date, bmiGson .toJson(user))
+            putString(date, bmiGson.toJson(user))
                 .apply()
         }
-        saveBmiDateList(datelist)
     }
 
     fun bmiCalculate(a: Double, b: Double) = b / (a * a) * 10000
@@ -118,7 +130,13 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
+    fun loadDateList(pref:SharedPreferences): List<String> {
+        val dateGson = Gson()
+        val dateList: List<String>
+        val listType = object : TypeToken<List<String>>() {}.type
+        dateList = dateGson.fromJson(pref.getString("DATE_LIST", ""), object : TypeToken<List<String>>() {}.type)
+        return dateList
+    }
 
 //    fun lordBmiList(): ArrayList<String> {
 //        val list = ArrayList<String>()
