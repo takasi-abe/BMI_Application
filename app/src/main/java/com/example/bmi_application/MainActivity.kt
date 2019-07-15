@@ -11,6 +11,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_bmi_insert.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.android.synthetic.main.fragment_bmi_list.*
 import java.text.SimpleDateFormat
 import java.util.*
 import org.json.JSONArray
@@ -18,7 +19,6 @@ import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
-
 
 
     @SuppressLint("SetTextI18n")
@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
 
         //TODO 入力データがnullの場合のエラー処理
 
+        //履歴画面のフラグメント表示
         bmiList.setOnClickListener {
             val pref = PreferenceManager.getDefaultSharedPreferences(this)
             val jsonArray = JSONArray(pref.getString("DATE_LIST", "[]"))
@@ -36,15 +37,16 @@ class MainActivity : AppCompatActivity() {
             for (i in 0 until jsonArray.length()) {
                 Log.i("loadArrayList", "[$i] -> " + jsonArray.get(i))
             }
-//            var bmiList = lordBmiList()
-//            println(bmiList)
-//            val fragment = bmiListFragment()
-//            val fragmentManager = this.getSupportFragmentManager()
-//            val fragmentTransaction = fragmentManager.beginTransaction()
-//            fragmentTransaction.replace(R.id.container, fragment)
-//                .commit()
+            var bmiList = lordBmiList()
+            println(bmiList)
+            val fragment = bmiListFragment()
+            val fragmentManager = this.getSupportFragmentManager()
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.container, fragment)
+                .commit()
         }
 
+        //入力画面のフラグメント表示
         insert.setOnClickListener {
             val fragment = bmiInsertFragment()
             val fragmentManager = this.getSupportFragmentManager()
@@ -53,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                 .commit()
         }
 
-        //BMI計算機能
+        //BMI計算時に用いる変数の宣言
         var bmi: String? = null
         var height: Double = 0.0
         var weight: Double = 0.0
@@ -61,25 +63,29 @@ class MainActivity : AppCompatActivity() {
         val df = SimpleDateFormat("yyyy/MM/dd")
         val date = df.format(Date())
         var user = bmiUser(bmi, height, weight, comment, date)
+
+
+        //BMI計算機能
         calcButton.setOnClickListener {
-                //入力された数値が正しい場合のみBMIを計算する
+            //入力された数値が正しい場合のみBMIを計算する
 //                if(inputHeight.text != null || inputWeight.text != null) {
 //                    bmiResult.text = "身長および体重を入力してください"
 //                } else {
-                    height = inputHeight.text.toString().toDouble()
-                    weight = inputWeight.text.toString().toDouble()
-                    //計算結果を表示する
-                    bmi = String.format("%1$.1f", bmiCalculate(height, weight))
-                    bmiResult.text = "あなたのBMIは $bmi です。"
+            height = inputHeight.text.toString().toDouble()
+            weight = inputWeight.text.toString().toDouble()
+            //計算結果を表示する
+            bmi = String.format("%1$.1f", bmiCalculate(height, weight))
+            bmiResult.text = "あなたのBMIは $bmi です。"
 
-                user.date = date
-                user.bmi = bmi
-                user.height = height
-                user.weight = weight
-                user.comment = inputComment.toString()
+            //入力したデータをオブジェクトに代入
+            user.date = date
+            user.bmi = bmi
+            user.height = height
+            user.weight = weight
+            user.comment = inputComment.toString()
 //                }
 
-            }
+        }
 
         //入力フォームのクリア
         delete.setOnClickListener {
@@ -95,61 +101,60 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //保存ボタンを押下した際のメソッド
     fun onSaveTapped(date: String, user: bmiUser) {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
-//        val jsonArray = JSONArray(pref.getString("DATE_LIST", " "))
-//        var datelist = mutableListOf<String?>()
-        val datelist: List<String> = loadDateList(pref)
+        var dateList = lordDateList()
 
-//        for (i in 0 until jsonArray.length()) {
-//            datelist.add(jsonArray.get(i) as String)
+        // 保存した日のデータがない場合のみ その日付を保存する
+//        if (datelist.binarySearch ( date ) > 0 ) {
+        pref.edit {
+            putString("${dateList.size}", date)
+                .apply()
+        }
 //        }
 
-//        if (pref.getString(date, null) != null) {
-//            datelist.add(date)
-            println(datelist)
-            saveBmiDateList(datelist)
-//        }
+        //Viewで入力したBMIデータを保存する
         pref.edit {
             val bmiGson = Gson()
             bmiGson.toJson(user)
             putString(date, bmiGson.toJson(user))
                 .apply()
         }
+        //確認用
+        println(dateList)
     }
 
+    //BMi計算用メソッド
     fun bmiCalculate(a: Double, b: Double) = b / (a * a) * 10000
 
-    fun saveBmiDateList(arrayList:List<String?>){
+
+    //        SharedPreferenceからBMIデータをリストとして呼び出す
+    fun lordBmiList(): ArrayList<String?> {
+        val dateList = lordDateList()
+        var dateKey: String?
+        val bmiList = ArrayList<String?>()
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        pref.edit {
-            val dateGson = Gson()
-            dateGson.toJson(arrayList)
-            putString("DATE_LIST", dateGson.toJson(dateGson))
-                .apply()
+        for (i in 0 until  dateList.size) {
+            dateKey = dateList.get(i)
+            bmiList.add(pref.getString(dateKey, ""))
         }
+        println(bmiList)
 
-    }
-    fun loadDateList(pref:SharedPreferences): List<String> {
-        val dateGson = Gson()
-        val dateList: List<String>
-        val listType = object : TypeToken<List<String>>() {}.type
-        dateList = dateGson.fromJson(pref.getString("DATE_LIST", ""), object : TypeToken<List<String>>() {}.type)
-        return dateList
+        return bmiList
     }
 
-//    fun lordBmiList(): ArrayList<String> {
-//        val list = ArrayList<String>()
-//        val pref = PreferenceManager.getDefaultSharedPreferences(this)
-//        val strJson:
-//        val jsonAry = JSONArray(strJson)
-//
-//        if (strJson != " ") {
-//            for (i in 0 until jsonAry.length()) {
-//                list = pref.getString(date," ")
-//            }
-//
-//        }
-//        return list
-//    }
+    //SharedPreferenceからBMIデータを呼び出すためのキーのリストを作成
+    fun lordDateList(): ArrayList<String?> {
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        var dateId: Int = 1
+        var dateKey: String? = pref.getString("1", null)
+        var datelist: ArrayList<String?> = arrayListOf()
+        while (dateKey != null) {
+            datelist.add(dateKey)
+            dateId++
+            dateKey = pref.getString("$dateId", null)
+        }
+        return datelist
+    }
 }
