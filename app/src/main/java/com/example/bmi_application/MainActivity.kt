@@ -1,17 +1,15 @@
 package com.example.bmi_application
 
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
+
 import android.util.Log
 import androidx.core.content.edit
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_bmi_insert.*
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.android.synthetic.main.fragment_bmi_list.*
 import java.text.SimpleDateFormat
 import java.util.*
 import org.json.JSONArray
@@ -39,11 +37,11 @@ class MainActivity : AppCompatActivity() {
             }
             var bmiList = lordBmiList()
             println(bmiList)
-            val fragment = bmiListFragment()
-            val fragmentManager = this.getSupportFragmentManager()
-            val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.container, fragment)
-                .commit()
+//            val fragment = bmiListFragment()
+//            val fragmentManager = this.getSupportFragmentManager()
+//            val fragmentTransaction = fragmentManager.beginTransaction()
+//            fragmentTransaction.replace(R.id.container, fragment)
+//                .commit()
         }
 
         //入力画面のフラグメント表示
@@ -56,13 +54,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         //BMI計算時に用いる変数の宣言
-        var bmi: String? = null
-        var height: Double = 0.0
-        var weight: Double = 0.0
-        val comment: String? = null
-        val df = SimpleDateFormat("yyyy/MM/dd")
-        val date = df.format(Date())
-        var user = bmiUser(bmi, height, weight, comment, date)
+        var bmi: String? = null     // BMI
+        var height: Double = 0.0    // 身長
+        var weight: Double = 0.0    // 体重
+        val comment: String? = null // コメント
+        val date = SimpleDateFormat("yyyy/MM/dd").format(Date())// 登録した日付
+        var user = BmiUser(bmi, height, weight, comment, date)
 
 
         //BMI計算機能
@@ -102,17 +99,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     //保存ボタンを押下した際のメソッド
-    fun onSaveTapped(date: String, user: bmiUser) {
+    fun onSaveTapped(date: String, user: BmiUser) {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         var dateList = lordDateList()
 
         // 保存した日のデータがない場合のみ その日付を保存する
-//        if (datelist.binarySearch ( date ) > 0 ) {
+        if (dateList.binarySearch ( date ) < 0 ) {
         pref.edit {
             putString("${dateList.size}", date)
                 .apply()
+            }
         }
-//        }
 
         //Viewで入力したBMIデータを保存する
         pref.edit {
@@ -121,8 +118,7 @@ class MainActivity : AppCompatActivity() {
             putString(date, bmiGson.toJson(user))
                 .apply()
         }
-        //確認用
-        println(dateList)
+
     }
 
     //BMi計算用メソッド
@@ -147,8 +143,8 @@ class MainActivity : AppCompatActivity() {
     //SharedPreferenceからBMIデータを呼び出すためのキーのリストを作成
     fun lordDateList(): ArrayList<String?> {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        var dateId: Int = 1
-        var dateKey: String? = pref.getString("1", null)
+        var dateId: Int = 0
+        var dateKey: String? = pref.getString("0", null)
         var datelist: ArrayList<String?> = arrayListOf()
         while (dateKey != null) {
             datelist.add(dateKey)
@@ -158,3 +154,5 @@ class MainActivity : AppCompatActivity() {
         return datelist
     }
 }
+git config --global user.name "takasi-abe"
+git config --global user.email "t-abe@cries.co.jp"
