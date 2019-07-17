@@ -1,6 +1,7 @@
 package com.example.bmi_application
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -18,11 +19,15 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
+    lateinit var mainContext: Context
+
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        mainContext = this
 
 
         //TODO 入力データがnullの場合のエラー処理
@@ -35,20 +40,24 @@ class MainActivity : AppCompatActivity() {
             for (i in 0 until jsonArray.length()) {
                 Log.i("loadArrayList", "[$i] -> " + jsonArray.get(i))
             }
-            var bmiList = lordBmiList()
-            println(bmiList)
+            textView.text = "履歴"
             val fragment = BmiListFragment()
-            val fragmentManager = this.getSupportFragmentManager()
+            val fragmentManager = this.supportFragmentManager
             val fragmentTransaction = fragmentManager.beginTransaction()
+
+            fragment.setContext(this)
+
             fragmentTransaction.replace(R.id.container, fragment)
                 .commit()
         }
 
         //入力画面のフラグメント表示
         insert.setOnClickListener {
+            textView.text = "入力"
             val fragment = BmiInsertFragment()
             val fragmentManager = this.getSupportFragmentManager()
             val fragmentTransaction = fragmentManager.beginTransaction()
+
             fragmentTransaction.replace(R.id.container, fragment)
                 .commit()
         }
@@ -58,8 +67,10 @@ class MainActivity : AppCompatActivity() {
         var height: Double = 0.0    // 身長
         var weight: Double = 0.0    // 体重
         val comment: String? = null // コメント
-        val date = SimpleDateFormat("yyyy/MM/dd").format(Date())// 登録した日付
-        var user = BmiUser(bmi, height, weight, comment, date)
+        val date = SimpleDateFormat("yyyy/MM/dd").format(Date()) // 登録した日付
+        val month: String = SimpleDateFormat("MM").format(Date())  // 履歴表示用
+        val day: String = SimpleDateFormat("dd").format(Date())    // 履歴表示用
+        var user = BmiUser(bmi, height, weight, comment, date, month, day)
 
 
         //BMI計算機能
@@ -80,6 +91,8 @@ class MainActivity : AppCompatActivity() {
             user.height = height
             user.weight = weight
             user.comment = inputComment.toString()
+            user.month = month
+            user.day = day
 //                }
 
         }
@@ -125,6 +138,20 @@ class MainActivity : AppCompatActivity() {
     fun bmiCalculate(a: Double, b: Double) = b / (a * a) * 10000
 
 
+    //SharedPreferenceからBMIデータを呼び出すためのキーのリストを作成
+    private fun lordDateList(): ArrayList<String?> {
+        val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
+        var dateId: Int = 0
+        var dateKey: String? = pref.getString("0", null)
+        var datelist: ArrayList<String?> = arrayListOf()
+        while (dateKey != null) {
+            datelist.add(dateKey)
+            dateId++
+            dateKey = pref.getString("$dateId", null)
+        }
+        return datelist
+    }
+
     //        SharedPreferenceからBMIデータをリストとして呼び出す
     fun lordBmiList(): ArrayList<String?> {
         val dateList = lordDateList()
@@ -135,22 +162,21 @@ class MainActivity : AppCompatActivity() {
             dateKey = dateList.get(i)
             bmiList.add(pref.getString(dateKey, ""))
         }
-        println(bmiList)
-
         return bmiList
     }
 
-    //SharedPreferenceからBMIデータを呼び出すためのキーのリストを作成
-    fun lordDateList(): ArrayList<String?> {
-        val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        var dateId: Int = 0
-        var dateKey: String? = pref.getString("0", null)
-        var datelist: ArrayList<String?> = arrayListOf()
-        while (dateKey != null) {
-            datelist.add(dateKey)
-            dateId++
-            dateKey = pref.getString("$dateId", null)
+
+    fun ConvertToBmiUser (): List<BmiUser> {
+        var bmiList = lordBmiList()
+        var bmiUserList = mutableListOf<BmiUser>()
+        val gson = Gson()
+
+        bmiList.forEach {
+            it?.let {
+                val comvertList = gson.fromJson(it, BmiUser::class.java);
+                bmiUserList.add(comvertList)
+            }
         }
-        return datelist
+        return bmiUserList
     }
 }
