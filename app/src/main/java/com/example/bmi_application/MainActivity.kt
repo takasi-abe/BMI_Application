@@ -20,6 +20,7 @@ import kotlin.collections.ArrayList
 class MainActivity : AppCompatActivity() {
 
     lateinit var mainContext: Context
+    var bmiListFunction: BmiListFunction = BmiListFunction()
 
 
     @SuppressLint("SetTextI18n")
@@ -35,11 +36,6 @@ class MainActivity : AppCompatActivity() {
         //履歴画面のフラグメント表示
         bmiList.setOnClickListener {
             val pref = PreferenceManager.getDefaultSharedPreferences(this)
-            val jsonArray = JSONArray(pref.getString("DATE_LIST", "[]"))
-
-            for (i in 0 until jsonArray.length()) {
-                Log.i("loadArrayList", "[$i] -> " + jsonArray.get(i))
-            }
             textView.text = "履歴"
             val fragment = BmiListFragment()
             val fragmentManager = this.supportFragmentManager
@@ -114,7 +110,7 @@ class MainActivity : AppCompatActivity() {
     //保存ボタンを押下した際のメソッド
     fun onSaveTapped(date: String, user: BmiUser) {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        var dateList = lordDateList()
+        var dateList = bmiListFunction.lordDateList(pref, this)
 
         // 保存した日のデータがない場合のみ その日付を保存する
         if (dateList.binarySearch ( date ) < 0 ) {
@@ -138,45 +134,10 @@ class MainActivity : AppCompatActivity() {
     fun bmiCalculate(a: Double, b: Double) = b / (a * a) * 10000
 
 
-    //SharedPreferenceからBMIデータを呼び出すためのキーのリストを作成
-    private fun lordDateList(): ArrayList<String?> {
-        val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
-        var dateId: Int = 0
-        var dateKey: String? = pref.getString("0", null)
-        var datelist: ArrayList<String?> = arrayListOf()
-        while (dateKey != null) {
-            datelist.add(dateKey)
-            dateId++
-            dateKey = pref.getString("$dateId", null)
-        }
-        return datelist
-    }
-
-    //        SharedPreferenceからBMIデータをリストとして呼び出す
-    fun lordBmiList(): ArrayList<String?> {
-        val dateList = lordDateList()
-        var dateKey: String?
-        val bmiList = ArrayList<String?>()
-        val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        for (i in 0 until  dateList.size) {
-            dateKey = dateList.get(i)
-            bmiList.add(pref.getString(dateKey, ""))
-        }
-        return bmiList
-    }
 
 
-    fun ConvertToBmiUser (): List<BmiUser> {
-        var bmiList = lordBmiList()
-        var bmiUserList = mutableListOf<BmiUser>()
-        val gson = Gson()
 
-        bmiList.forEach {
-            it?.let {
-                val comvertList = gson.fromJson(it, BmiUser::class.java);
-                bmiUserList.add(comvertList)
-            }
-        }
-        return bmiUserList
-    }
+
+
+
 }

@@ -9,10 +9,6 @@ import android.widget.TextView
 
 import kotlinx.android.synthetic.main.fragment_bmi.view.*
 
-data class RecyclerViewStatus(val type: Int ,val item: BmiUser)
-/**
- *
- */
 class MybmiRecyclerViewAdapter(
     private val mValues: List<BmiUser> // 表示したいリスト
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -29,29 +25,23 @@ class MybmiRecyclerViewAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         /** ここに３パターンのreturnを書く */
 
-        when (viewType) {
-            0 -> {
+        when (BmiDataType.fromInt(viewType)) {
+            BmiDataType.SECTION -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.section_row, parent, false)
                 return sectionViewHolder(view)
             }
 
-            1 -> {
+            BmiDataType.BMI -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.fragment_bmi, parent, false)
                 return bmiViewHolder(view)
             }
 
-            2 -> {
+            BmiDataType.COMMENT -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.comment_row, parent, false)
                 return commentViewHolder(view)
-            }
-
-            else -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.fragment_bmi, parent, false)
-                return bmiViewHolder(view)
             }
 
         }

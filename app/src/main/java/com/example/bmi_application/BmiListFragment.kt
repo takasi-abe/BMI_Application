@@ -1,6 +1,7 @@
 package com.example.bmi_application
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
 import androidx.fragment.app.Fragment
@@ -8,12 +9,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.gson.Gson
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_bmi_list.*
 
 
 class BmiListFragment : Fragment() {
 
     lateinit var mainContext: Context
+    lateinit var bmiListFunction: BmiListFunction
+    val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,11 +32,11 @@ class BmiListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mainActivity = mainContext as MainActivity
         val recyclerView = list
-        val adapter = MybmiRecyclerViewAdapter(mainActivity.ConvertToBmiUser())
+        val bmiList = bmiListFunction.lordBmiList(pref, mainContext)
+        val adapter = MybmiRecyclerViewAdapter(bmiListFunction.ConvertToBmiUser(bmiList))
 
-        val pref = PreferenceManager.getDefaultSharedPreferences(this.activity) // getActivity()
+        // getActivity()
 
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(activity)
@@ -41,4 +46,9 @@ class BmiListFragment : Fragment() {
     fun setContext(context: Context) {
         this.mainContext = context
     }
+
+    fun intoBmiListFunction(function: BmiListFunction){
+        this.bmiListFunction = function
+    }
+
 }
