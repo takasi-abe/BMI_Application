@@ -32,7 +32,7 @@
             app:layout_constraintTop_toTopOf="@+id/bmiList" app:layout_constraintVertical_bias="0.0"/>
     <fragment
             android:layout_width="0dp"
-            android:layout_height="0dp" android:name="com.example.bmi_application.bmiInsertFragment"
+            android:layout_height="0dp" android:name="com.example.bmi_application.BmiInsertFragment"
             android:id="@+id/container"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="32dp"
             app:layout_constraintTop_toBottomOf="@+id/textView" app:layout_constraintEnd_toEndOf="parent"

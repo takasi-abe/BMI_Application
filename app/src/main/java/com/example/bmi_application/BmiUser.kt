@@ -2,7 +2,7 @@ package com.example.bmi_application
 
 import java.text.SimpleDateFormat
 
-class BmiUser{
+class BmiUser {
     var bmi: String? = null
     var height: Double = 0.0
     var weight: Double = 0.0

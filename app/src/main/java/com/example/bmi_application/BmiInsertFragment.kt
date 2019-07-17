@@ -1,40 +1,31 @@
 package com.example.bmi_application
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.net.Uri
 import android.os.Bundle
-import android.preference.PreferenceManager
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
-import kotlinx.android.synthetic.main.fragment_bmi_insert.*
+import androidx.fragment.app.Fragment
 
 
-@Suppress("UNREACHABLE_CODE")
-class bmiInsertFragment : Fragment() {
+class BmiInsertFragment : Fragment() {
 
-    @SuppressLint("SetTextI18n")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-
-//            //データの保存
-//            val pref = PreferenceManager.getDefaultSharedPreferences(AppCompatActivity())
-//            val editHeight = pref.getString("Height", " ")
-//            val editWeight = pref.getString("Weight", " ")
-//            val editBmi = pref.getString("BMI", " ")
-//            val editComment = pref.getString("COMMENT", " ")
-
-//            //保存ボタンを押された際の処理
-//            save2.setOnClickListener {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
 //
-//                onSaveTapped(bmi)
-//            }
-    }
+//
+////            //データの保存
+////            val pref = PreferenceManager.getDefaultSharedPreferences(AppCompatActivity())
+////            val editHeight = pref.getString("Height", " ")
+////            val editWeight = pref.getString("Weight", " ")
+////            val editBmi = pref.getString("BMI", " ")
+////            val editComment = pref.getString("COMMENT", " ")
+//
+////            //保存ボタンを押された際の処理
+////            save2.setOnClickListener {
+////
+////                onSaveTapped(bmi)
+////            }
+//    }
 
 //    fun onSaveTapped(bmi: String?) {
 //

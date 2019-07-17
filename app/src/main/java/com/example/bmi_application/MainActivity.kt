@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             }
             var bmiList = lordBmiList()
             println(bmiList)
-            val fragment = bmiListFragment()
+            val fragment = BmiListFragment()
             val fragmentManager = this.getSupportFragmentManager()
             val fragmentTransaction = fragmentManager.beginTransaction()
             fragmentTransaction.replace(R.id.container, fragment)
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         //入力画面のフラグメント表示
         insert.setOnClickListener {
-            val fragment = bmiInsertFragment()
+            val fragment = BmiInsertFragment()
             val fragmentManager = this.getSupportFragmentManager()
             val fragmentTransaction = fragmentManager.beginTransaction()
             fragmentTransaction.replace(R.id.container, fragment)
