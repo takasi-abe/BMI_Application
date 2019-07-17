@@ -37,11 +37,11 @@ class MainActivity : AppCompatActivity() {
             }
             var bmiList = lordBmiList()
             println(bmiList)
-//            val fragment = bmiListFragment()
-//            val fragmentManager = this.getSupportFragmentManager()
-//            val fragmentTransaction = fragmentManager.beginTransaction()
-//            fragmentTransaction.replace(R.id.container, fragment)
-//                .commit()
+            val fragment = bmiListFragment()
+            val fragmentManager = this.getSupportFragmentManager()
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.container, fragment)
+                .commit()
         }
 
         //入力画面のフラグメント表示
@@ -154,5 +154,3 @@ class MainActivity : AppCompatActivity() {
         return datelist
     }
 }
-git config --global user.name "takasi-abe"
-git config --global user.email "t-abe@cries.co.jp"
