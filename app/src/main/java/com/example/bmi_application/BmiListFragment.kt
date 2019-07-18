@@ -1,5 +1,6 @@
 package com.example.bmi_application
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -18,7 +19,6 @@ class BmiListFragment : Fragment() {
 
     lateinit var mainContext: Context
     lateinit var bmiListFunction: BmiListFunction
-    val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,11 +32,10 @@ class BmiListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
         val recyclerView = list
         val bmiList = bmiListFunction.lordBmiList(pref, mainContext)
         val adapter = MybmiRecyclerViewAdapter(bmiListFunction.ConvertToBmiUser(bmiList))
-
-        // getActivity()
 
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(activity)

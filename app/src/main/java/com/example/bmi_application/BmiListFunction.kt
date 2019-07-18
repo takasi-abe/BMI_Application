@@ -8,7 +8,6 @@ import com.google.gson.Gson
 
 class BmiListFunction {
 
-
     //SharedPreferenceからBMIデータを呼び出すためのキーのリストを作成
     fun lordDateList(pref: SharedPreferences, mainContext: Context): ArrayList<String?> {
         var dateId: Int = 0
@@ -35,8 +34,8 @@ class BmiListFunction {
         return bmiList
     }
 
-    fun ConvertToBmiUser(bmiList: ArrayList<String?>): List<BmiUser> {
-        var bmiUserList = mutableListOf<BmiUser>()
+    fun ConvertToBmiUser(bmiList: ArrayList<String?>): ArrayList<BmiDataState> {
+        val bmiUserList = mutableListOf<BmiUser>()
         val gson = Gson()
 
         bmiList.forEach {
@@ -45,6 +44,23 @@ class BmiListFunction {
                 bmiUserList.add(comvertList)
             }
         }
-        return bmiUserList
+
+        val bmiDataStatusList = arrayListOf<BmiDataState>()
+
+        var sectionUniqueCheak: String = "MM"
+        for (data in bmiUserList) {
+            if (data.month != sectionUniqueCheak) {
+                val section = BmiDataState(BmiDataType.SECTION, data)
+                bmiDataStatusList.add(section)
+                sectionUniqueCheak = data.month
+            }
+            val bmiData = BmiDataState(BmiDataType.BMI, data)
+            bmiDataStatusList.add(bmiData)
+
+            val comment = BmiDataState(BmiDataType.COMMENT, data)
+            bmiDataStatusList.add(comment)
+         }
+
+        return bmiDataStatusList
     }
 }

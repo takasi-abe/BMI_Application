@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:orientation="vertical"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="wrap_content" android:id="@+id/linearLayout">
+
+    <TextView
+            android:text="@string/day_text"
+            android:layout_width="98dp"
+            android:layout_height="35dp" android:id="@+id/day"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" android:textSize="24sp"/>
+
+    <TextView
+            android:text="@string/height_text"
+            android:layout_width="112dp"
+            android:layout_height="wrap_content" android:id="@+id/height"
+            app:layout_constraintTop_toTopOf="@id/day"
+            app:layout_constraintStart_toEndOf="@+id/day" app:layout_constraintBottom_toBottomOf="@id/day"
+            app:layout_constraintEnd_toStartOf="@+id/weight"/>
+
+    <TextView
+            android:text="@string/weight_text"
+            android:layout_width="112dp"
+            android:layout_height="wrap_content" android:id="@+id/weight"
+            app:layout_constraintBottom_toBottomOf="@id/height"
+            app:layout_constraintTop_toTopOf="@id/height"
+            app:layout_constraintStart_toEndOf="@+id/height"
+            app:layout_constraintEnd_toStartOf="@+id/bmi"
+    />
+    <TextView
+            android:text="@string/bmi_text"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content" android:id="@+id/bmi"
+            app:layout_constraintTop_toTopOf="@id/weight" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/weight"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,10 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 
 
-import kotlinx.android.synthetic.main.fragment_bmi.view.*
-
 class MybmiRecyclerViewAdapter(
-    private val mValues: List<BmiUser> // 表示したいリスト
+    private val mValues: ArrayList<BmiDataState>// 表示したいリスト
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
@@ -26,15 +24,15 @@ class MybmiRecyclerViewAdapter(
         /** ここに３パターンのreturnを書く */
 
         when (BmiDataType.fromInt(viewType)) {
+
             BmiDataType.SECTION -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.section_row, parent, false)
                 return sectionViewHolder(view)
             }
-
             BmiDataType.BMI -> {
                 val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.fragment_bmi, parent, false)
+                    .inflate(R.layout.bmi_row, parent, false)
                 return bmiViewHolder(view)
             }
 
@@ -73,31 +71,29 @@ class MybmiRecyclerViewAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is sectionViewHolder -> {
-                val item = mValues[position]
+                val item = mValues[position].bmiUser
 
-                holder.sectionView.text = item.month
+                holder.sectionView.text = (item.month + "月")
 
             }
 
             is bmiViewHolder -> {
-                val item = mValues[position]
+                val item = mValues[position].bmiUser
 
-                holder.bmiView.text = item.bmi
-                holder.heightView.text = item.height.toString()
-                holder.weightView.text = item.weight.toString()
-                holder.dayView.text = item.day
+                holder.dayView.text = (item.day + "日")
+                holder.bmiView.text = ("BMI：" + item.bmi)
+                holder.heightView.text = ("身長：" +item.height.toString() + "cm")
+                holder.weightView.text = ("体重："+ item.weight.toString() + "kg")
 
             }
 
             is commentViewHolder -> {
-                val item = mValues[position]
+                val item = mValues[position].bmiUser
 
-                holder.commentView.text = item.comment
+                holder.commentView.text = ("コメント：" + item.comment)
 
             }
         }
-        // holder.mIdView.text = item.id
-
 
         /** レイアウトのViewに値を入れる処理を書く viewのID.text = "value" */
 //        holder.mContentView.text = item.content
@@ -114,20 +110,24 @@ class MybmiRecyclerViewAdapter(
     /** RecyclerViewで使用するレイアウトの数だけ作成する。 */
 
     /** バディ用 3つバインドする*/
-    inner class bmiViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val bmiView: TextView = mView.findViewById(R.id.item_bmi)
-        val heightView: TextView = mView.findViewById(R.id.item_height)
-        val weightView: TextView = mView.findViewById(R.id.item_weight)
-        val dayView: TextView = mView.findViewById(R.id.item_day)
+    inner class bmiViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
+        val bmiView: TextView = mView.findViewById(R.id.bmi)
+        val heightView: TextView = mView.findViewById(R.id.height)
+        val weightView: TextView = mView.findViewById(R.id.weight)
+        val dayView: TextView = mView.findViewById(R.id.day)
     }
 
     /** セクション用 1つバインドする */
-    inner class sectionViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class sectionViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
         val sectionView: TextView = mView.findViewById(R.id.section)
     }
 
     /** メモ用 1つバインドする */
-    inner class commentViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class commentViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
         val commentView: TextView = mView.findViewById(R.id.comment)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return mValues[position].type.value
     }
 }
