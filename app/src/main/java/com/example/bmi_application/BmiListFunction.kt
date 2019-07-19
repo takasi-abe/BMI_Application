@@ -57,8 +57,10 @@ class BmiListFunction {
             val bmiData = BmiDataState(BmiDataType.BMI, data)
             bmiDataStatusList.add(bmiData)
 
-            val comment = BmiDataState(BmiDataType.COMMENT, data)
-            bmiDataStatusList.add(comment)
+            if (data.comment != null) {
+                val comment = BmiDataState(BmiDataType.COMMENT, data)
+                bmiDataStatusList.add(comment)
+            }
          }
 
         return bmiDataStatusList
