@@ -69,7 +69,9 @@ class MybmiRecyclerViewAdapter(
      * list[position]
      */
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        //各ホルダーに保存されている値によってレイアウトを振り分ける
         when (holder) {
+            //セクション
             is sectionViewHolder -> {
                 val item = mValues[position].bmiUser
 
@@ -77,6 +79,7 @@ class MybmiRecyclerViewAdapter(
 
             }
 
+            //ボディ
             is bmiViewHolder -> {
                 val item = mValues[position].bmiUser
 
@@ -87,6 +90,7 @@ class MybmiRecyclerViewAdapter(
 
             }
 
+            //コメント
             is commentViewHolder -> {
                 val item = mValues[position].bmiUser
 
@@ -95,38 +99,32 @@ class MybmiRecyclerViewAdapter(
             }
         }
 
-        /** レイアウトのViewに値を入れる処理を書く viewのID.text = "value" */
-//        holder.mContentView.text = item.content
-
-//        with(holder.mView) {
-//            tag = item
-//            setOnClickListener(mOnClickListener)
-//        }
     }
 
-    /** リストのサイズを返却する */
+    //リストのサイズを宣言
     override fun getItemCount(): Int = mValues.size
 
-    /** RecyclerViewで使用するレイアウトの数だけ作成する。 */
+    //ViewHolderを作成
+    //セクション
+    inner class sectionViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
+        val sectionView: TextView = mView.findViewById(R.id.section)
+    }
 
-    /** バディ用 3つバインドする*/
+    //ボディ
     inner class bmiViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
         val bmiView: TextView = mView.findViewById(R.id.bmi)
         val heightView: TextView = mView.findViewById(R.id.height)
         val weightView: TextView = mView.findViewById(R.id.weight)
         val dayView: TextView = mView.findViewById(R.id.day)
+
     }
 
-    /** セクション用 1つバインドする */
-    inner class sectionViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
-        val sectionView: TextView = mView.findViewById(R.id.section)
-    }
-
-    /** メモ用 1つバインドする */
+    //コメント
     inner class commentViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
         val commentView: TextView = mView.findViewById(R.id.comment)
     }
 
+    //BMIデータのViewTypeを振り分ける
     override fun getItemViewType(position: Int): Int {
         return mValues[position].type.value
     }

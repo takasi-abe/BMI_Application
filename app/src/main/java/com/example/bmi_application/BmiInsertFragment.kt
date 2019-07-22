@@ -19,10 +19,15 @@ class BmiInsertFragment : Fragment() {
     lateinit var mainContext: Context
     private var bmiListFunction: BmiListFunction = BmiListFunction()
 
-    var height: Double = 0.0
-    var weight: Double = 0.0
-    var bmi: String = "      "
-    var comment: String? = null
+    //BMIデータに用いる変数の宣言
+    var height: Double = 0.0     //身長
+    var weight: Double = 0.0     //体重
+    var bmi: String = "      "   //BMIの計算結果
+    var comment: String? = null  //コメント
+    var date = SimpleDateFormat("yyyy/MM/dd").format(Date()) //登録した日付
+    var month = SimpleDateFormat("MM").format(Date())        //月(履歴表示用)
+    var day = SimpleDateFormat("dd").format(Date())          //日(履歴表示用)
+    var dateKey: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,10 +55,7 @@ class BmiInsertFragment : Fragment() {
 
         //入力フォームのクリア
         delete.setOnClickListener {
-            inputHeight.setText(" ")
-            inputWeight.setText(" ")
-            bmiResult.text = ("あなたのBMIは      です。")
-            inputComment.setText(" ")
+            deleteTodayData()
         }
 
         //bmi計算結果の保存
@@ -69,12 +71,18 @@ class BmiInsertFragment : Fragment() {
         height = inputHeight.text.toString().toDouble()
         weight = inputWeight.text.toString().toDouble()
 
-        //異常な値が入力された場合、アラートダイアログを表示
-        if (height == 0.0 || weight == 0.0) {
-            AlertDialog.Builder(mainContext)
-                .setTitle("値が小さすぎます。正しい値を入力してください。")
-                .setPositiveButton("ok") { dialog, which ->
-                }.show()
+        //入力値の規定パターン
+        val pattern = Regex("""\d{1,3}\.\d""")
+
+        //規定のパターン以外の値が入力された場合アラートダイアログを表示
+        if (!pattern.matches(inputHeight.text) || !pattern.matches(inputWeight.text)) {
+            alertDialog("小数点第一位まで入力してください。")
+            return bmi
+
+        } else if (height == 0.0 || weight == 0.0) {
+
+            //異常な値が入力された場合、アラートダイアログを表示
+            alertDialog("値が小さすぎます。正しい値を入力してください。")
             return bmi
         }
 
@@ -84,18 +92,25 @@ class BmiInsertFragment : Fragment() {
         return bmi
     }
 
+
+
+    //BMIデータの保存
     fun onSaveTapped() {
         // BMIが計算されていない場合、アラートダイアログを表示
-        if (bmi.isEmpty()) {
+        if (bmi == "      ") {
             saveNull()
+            return
         }
 
-        val date = SimpleDateFormat("yyyy/MM/dd").format(Date()) // 登録した日付
-        val month: String = SimpleDateFormat("MM").format(Date())  // 履歴表示用
-        val day: String = SimpleDateFormat("dd").format(Date())    // 履歴表示用
-        val user = BmiUser(bmi, height, weight, comment, date, month, day)
+        //保存するオブジェクトを宣言
+        val user = BmiUser(bmi, height, weight, comment, date, month, day)    //データ保存用オブジェクト
+
+        //入力されたコメントを変数に代入
+        comment = inputComment.text.toString()
+
+        //日付データを呼び出す
         val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
-        val dateList = bmiListFunction.lordDateList(pref, mainContext)
+        var dateList = bmiListFunction.lordDateList(pref, mainContext)
 
         //入力したデータをオブジェクトに代入
         user.bmi = bmi
@@ -106,11 +121,14 @@ class BmiInsertFragment : Fragment() {
         user.day = day
         user.comment = comment
 
-
         // 保存した日のデータがない場合のみ その日付を保存する
         if (dateList.binarySearch(date) < 0) {
+
+            //保存するBMIデータのキーを取得
+            dateKey = dateList.size.toString()
+
             pref.edit {
-                putString("${dateList.size}", date)
+                putString(dateKey, date)
                     .apply()
             }
         }
@@ -125,35 +143,54 @@ class BmiInsertFragment : Fragment() {
 
     }
 
-    fun setContext(context: Context) {
+    //当日のデータを消去する処理
+    fun deleteTodayData() {
+        val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
 
+        //当日のデータのキーを取得
+        val dateList = bmiListFunction.lordDateList(pref, mainContext)
+
+
+        //該当するデータを削除
+        //
+        if (!dateList.isEmpty() && date == dateList.last()) {
+            dateKey = (dateList.size - 1).toString()
+            bmiListFunction.deleteToday(pref, SimpleDateFormat("yyyy/MM/dd").format(Date()), dateKey)
+
+        }
+    }
+
+    //コンテキストパスをセットする処理
+    fun setContext(context: Context) {
         this.mainContext = context
     }
 
+    //BMIデータを扱う処理を管理するメソッド
     fun intoBmiListFunction(function: BmiListFunction) {
         this.bmiListFunction = function
     }
 
-
+    //計算する数値が空文字の場合
     fun insertNull() {
-
-        AlertDialog.Builder(mainContext)
-            .setTitle("身長・体重を入力してください")
-            .setPositiveButton("ok") { dialog, which ->
-            }.show()
+        alertDialog("身長・体重を入力してください")
     }
 
+    //保存する数値が空文字の場合
     fun saveNull() {
         if (inputHeight.text.isEmpty() || inputWeight.text.isEmpty()) {
 
             insertNull()
 
-        } else if (bmi == "") {
-            AlertDialog.Builder(mainContext)
-                .setTitle("BMIを計算してください")
-                .setPositiveButton("ok") { dialog, which ->
-                }.show()
+        } else if (bmi == "      ") {
+            alertDialog("BMIを計算してください")
         }
     }
 
+    //アラートダイアログの表示
+    fun alertDialog (alert: String) {
+        AlertDialog.Builder(mainContext)
+            .setTitle(alert)
+            .setPositiveButton("ok") { dialog, which ->
+            }.show()
+    }
 }
