@@ -12,7 +12,7 @@ class BmiUser {
     var month: String
     var day: String
 
-    constructor(
+    constructor( // TODO alt + Enter ですごいきれいにしてくれます
         bmi: String?,
         height: Double,
         weight: Double,

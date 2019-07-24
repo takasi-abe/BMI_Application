@@ -9,6 +9,7 @@ import com.google.gson.Gson
 class BmiListFunction {
 
     //SharedPreferenceからBMIデータを呼び出すためのキーのリストを作成
+    // TODO 未使用の引数があります
     fun lordDateList(pref: SharedPreferences, mainContext: Context): ArrayList<String?> {
         //日付データを管理する変数を宣言
         var dateId: Int = 0
@@ -86,6 +87,7 @@ class BmiListFunction {
     //当日のデータを削除する
     fun deleteToday(pref: SharedPreferences,date: String, datekey: String?) {
 
+        // TODO remove("0") は不要ではないでしょうか？
         pref.edit().remove("0").remove(datekey)
             .apply()
 

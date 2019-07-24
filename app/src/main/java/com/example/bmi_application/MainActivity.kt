@@ -12,13 +12,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var mainContext: Context
     private var bmiListFunction: BmiListFunction = BmiListFunction()
 
-
+    // TODO SuppressLint は AndroidStudio の警告を無効化してしまうので、極力使わないようにしてください。
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mainContext = this
+        mainContext = this // TODO 結果としてmainContext は未使用になっているので削除してください
         callInsertFragment()
 
         //履歴画面のフラグメント表示
@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     //入力画面の呼び出し
     private fun callInsertFragment() {
         val fragment = BmiInsertFragment()
+        // TODO this.getSupportFragmentManager() は alt + Enter を押すと、Kotlinにあった形式にAndroidStudioが変換してくれます
         val fragmentManager = this.getSupportFragmentManager()
         val fragmentTransaction = fragmentManager.beginTransaction()
 

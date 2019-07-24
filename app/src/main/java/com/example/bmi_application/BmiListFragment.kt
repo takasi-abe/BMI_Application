@@ -32,6 +32,7 @@ class BmiListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // TODO 警告は対応してください
         val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
         val recyclerView = list
         val bmiList = bmiListFunction.lordBmiList(pref, mainContext)

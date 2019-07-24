@@ -16,7 +16,7 @@ import java.util.*
 
 
 class BmiInsertFragment : Fragment() {
-    lateinit var mainContext: Context
+    lateinit var mainContext: Context // TODO FragmentからもContextは取得できるので、この変数は使わないようにしてください
     private var bmiListFunction: BmiListFunction = BmiListFunction()
 
     //BMIデータに用いる変数の宣言
@@ -24,6 +24,7 @@ class BmiInsertFragment : Fragment() {
     var weight: Double = 0.0     //体重
     var bmi: String = "      "   //BMIの計算結果
     var comment: String? = null  //コメント
+    // TODO 警告は対応してください Localeをつけるのと、date / month / day は private つけるか、ローカル変数でもいいですね。
     var date = SimpleDateFormat("yyyy/MM/dd").format(Date()) //登録した日付
     var month = SimpleDateFormat("MM").format(Date())        //月(履歴表示用)
     var day = SimpleDateFormat("dd").format(Date())          //日(履歴表示用)
@@ -171,11 +172,13 @@ class BmiInsertFragment : Fragment() {
     }
 
     //計算する数値が空文字の場合
+    // TODO メソッド名がinsertNullだと何かを登録する意味に見えるので、showEmptyAlertDialogなどのほうがいいかもしれません
     fun insertNull() {
         alertDialog("身長・体重を入力してください")
     }
 
     //保存する数値が空文字の場合
+    // TODO メソッド名がsaveNullだと何かを登録する意味に見えるので、showEmptyAlertDialogなどのほうがいいかもしれません
     fun saveNull() {
         if (inputHeight.text.isEmpty() || inputWeight.text.isEmpty()) {
 
@@ -187,6 +190,13 @@ class BmiInsertFragment : Fragment() {
     }
 
     //アラートダイアログの表示
+    // TODO メソッドコメントは以下の形にしたほうがいいですね(今回は全部やらなくていいです、ちゃんとついているので一旦)
+    /**
+     * アラートダイアログの表示
+     *
+     * @param alert ダイアログのタイトル TODO titleでいいですね
+     */
+    // TODO 他で使用されるメソッドでなければ、private をつけてください
     fun alertDialog (alert: String) {
         AlertDialog.Builder(mainContext)
             .setTitle(alert)
