@@ -1,9 +1,8 @@
 package com.example.bmi_application
 
 import android.app.AlertDialog
-import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,6 @@ import java.util.*
 
 
 class BmiInsertFragment : Fragment() {
-    lateinit var mainContext: Context // TODO FragmentからもContextは取得できるので、この変数は使わないようにしてください
     private var bmiListFunction: BmiListFunction = BmiListFunction()
 
     //BMIデータに用いる変数の宣言
@@ -24,11 +22,13 @@ class BmiInsertFragment : Fragment() {
     var weight: Double = 0.0     //体重
     var bmi: String = "      "   //BMIの計算結果
     var comment: String? = null  //コメント
-    // TODO 警告は対応してください Localeをつけるのと、date / month / day は private つけるか、ローカル変数でもいいですね。
-    var date = SimpleDateFormat("yyyy/MM/dd").format(Date()) //登録した日付
-    var month = SimpleDateFormat("MM").format(Date())        //月(履歴表示用)
-    var day = SimpleDateFormat("dd").format(Date())          //日(履歴表示用)
+    var date = SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN).format(Date()) //登録した日付
+    var month = SimpleDateFormat("MM", Locale.JAPAN).format(Date())        //月(履歴表示用)
+    var day = SimpleDateFormat("dd", Locale.JAPAN).format(Date())          //日(履歴表示用)
     var dateKey: String? = null
+
+    //SharedPreferenceの保存先
+    private val preference = "com.example.bmi_application_preferences"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,7 +47,7 @@ class BmiInsertFragment : Fragment() {
         calcButton.setOnClickListener {
             //身長・体重が入力されていない場合、アラートダイアログを表示
             if (inputHeight.text.isEmpty() || inputWeight.text.isEmpty()) {
-                insertNull()
+                insertEmptyAlertDialog()
             } else {
                 bmiResult.text = ("あなたのBMIは" + bmiCalculate() + "です。")
             }
@@ -66,14 +66,16 @@ class BmiInsertFragment : Fragment() {
     }
 
     //BMi計算用メソッド
-    fun bmiCalculate(): String {
+    private fun bmiCalculate(): String {
 
         //入力された値を取得
         height = inputHeight.text.toString().toDouble()
         weight = inputWeight.text.toString().toDouble()
 
         //入力値の規定パターン
-        val pattern = Regex("""\d{1,3}\.\d""")
+        val pattern = Regex(
+            """\d{1,3}\.\d""".trimIndent()
+        )
 
         //規定のパターン以外の値が入力された場合アラートダイアログを表示
         if (!pattern.matches(inputHeight.text) || !pattern.matches(inputWeight.text)) {
@@ -96,10 +98,10 @@ class BmiInsertFragment : Fragment() {
 
 
     //BMIデータの保存
-    fun onSaveTapped() {
+    private fun onSaveTapped() {
         // BMIが計算されていない場合、アラートダイアログを表示
         if (bmi == "      ") {
-            saveNull()
+            saveEmptyAlertDialog()
             return
         }
 
@@ -110,8 +112,8 @@ class BmiInsertFragment : Fragment() {
         comment = inputComment.text.toString()
 
         //日付データを呼び出す
-        val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
-        var dateList = bmiListFunction.lordDateList(pref, mainContext)
+        val pref = activity?.getSharedPreferences(preference, MODE_PRIVATE)
+        var dateList = bmiListFunction.lordDateList(pref)
 
         //入力したデータをオブジェクトに代入
         user.bmi = bmi
@@ -128,14 +130,14 @@ class BmiInsertFragment : Fragment() {
             //保存するBMIデータのキーを取得
             dateKey = dateList.size.toString()
 
-            pref.edit {
+            pref?.edit {
                 putString(dateKey, date)
                     .apply()
             }
         }
 
         //Viewで入力したBMIデータを保存する
-        pref.edit {
+        pref?.edit {
             val bmiGson = Gson()
             bmiGson.toJson(user)
             putString(date, bmiGson.toJson(user))
@@ -145,25 +147,20 @@ class BmiInsertFragment : Fragment() {
     }
 
     //当日のデータを消去する処理
-    fun deleteTodayData() {
-        val pref = PreferenceManager.getDefaultSharedPreferences(mainContext)
+    private fun deleteTodayData() {
+        val pref = activity?.getSharedPreferences(preference, MODE_PRIVATE)
 
         //当日のデータのキーを取得
-        val dateList = bmiListFunction.lordDateList(pref, mainContext)
+        val dateList = bmiListFunction.lordDateList(pref)
 
 
         //該当するデータを削除
         //
         if (!dateList.isEmpty() && date == dateList.last()) {
             dateKey = (dateList.size - 1).toString()
-            bmiListFunction.deleteToday(pref, SimpleDateFormat("yyyy/MM/dd").format(Date()), dateKey)
+            bmiListFunction.deleteToday(pref, SimpleDateFormat("yyyy/MM/dd", Locale.JAPAN).format(Date()), dateKey)
 
         }
-    }
-
-    //コンテキストパスをセットする処理
-    fun setContext(context: Context) {
-        this.mainContext = context
     }
 
     //BMIデータを扱う処理を管理するメソッド
@@ -172,17 +169,15 @@ class BmiInsertFragment : Fragment() {
     }
 
     //計算する数値が空文字の場合
-    // TODO メソッド名がinsertNullだと何かを登録する意味に見えるので、showEmptyAlertDialogなどのほうがいいかもしれません
-    fun insertNull() {
+    private fun insertEmptyAlertDialog() {
         alertDialog("身長・体重を入力してください")
     }
 
     //保存する数値が空文字の場合
-    // TODO メソッド名がsaveNullだと何かを登録する意味に見えるので、showEmptyAlertDialogなどのほうがいいかもしれません
-    fun saveNull() {
+    private fun saveEmptyAlertDialog() {
         if (inputHeight.text.isEmpty() || inputWeight.text.isEmpty()) {
 
-            insertNull()
+            insertEmptyAlertDialog()
 
         } else if (bmi == "      ") {
             alertDialog("BMIを計算してください")
@@ -190,17 +185,15 @@ class BmiInsertFragment : Fragment() {
     }
 
     //アラートダイアログの表示
-    // TODO メソッドコメントは以下の形にしたほうがいいですね(今回は全部やらなくていいです、ちゃんとついているので一旦)
     /**
      * アラートダイアログの表示
      *
-     * @param alert ダイアログのタイトル TODO titleでいいですね
+     * @param title
      */
-    // TODO 他で使用されるメソッドでなければ、private をつけてください
-    fun alertDialog (alert: String) {
-        AlertDialog.Builder(mainContext)
-            .setTitle(alert)
-            .setPositiveButton("ok") { dialog, which ->
+    private fun alertDialog (title: String) {
+        AlertDialog.Builder(activity)
+            .setTitle(title)
+            .setPositiveButton("ok") { _, _ ->
             }.show()
     }
 }
